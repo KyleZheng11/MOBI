@@ -10,6 +10,8 @@ import glob
 import os
 import serial
 import time
+import serial
+import serial.tools.list_ports
 
 webcam = cv2.VideoCapture(0) 
 
@@ -18,24 +20,39 @@ mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
 correct_image_count = 0
-correct_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'
+# correct_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'
+correct_folder = './arm-flexion-library/correct-arm-flexion-photos/'
 existing_correct = len(glob.glob(os.path.join(correct_folder, "*.jpg")))
 correct_image_count = existing_correct
 
 incorrect_image_count = 0
-incorrect_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'
+# incorrect_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'
+incorrect_folder = './arm-flexion-library/incorrect-arm-flexion-photos/'
 existing_incorrect = len(glob.glob(os.path.join(incorrect_folder, "*.jpg")))
 incorrect_image_count = existing_incorrect
 
-model = pickle.load(open('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-model.p', 'rb'))
+# model = pickle.load(open('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-model.p', 'rb'))
+model = pickle.load(open('./arm-model.p', 'rb'))
+
+print("Available COM ports:")
+ports = serial.tools.list_ports.comports()
+for port in ports:
+    print(f" {port.device} - {port.description}")
 
 try:
-    arduino = serial.Serial('COM3', 9600, timeout=1)  # Windows
-    time.sleep(2)  # Wait for Arduino to initialize
+    print("Attempting to connect to COM6...")
+    arduino = serial.Serial('COM6', 9600, timeout=1)  # Windows
+    time.sleep(3)  # Wait for Arduino to initialize
     print("Arduino connected")
-except:
+except serial.SerialException as e:
     arduino = None
-    print("Arduino not connected")
+    print(f"Serial connection error: {e}")
+except Exception as e:
+    arduino = None
+    print(f"Other connection error: {e}")
+# except:
+#     arduino = None
+#     print("Arduino not connected")
 
 while True:
     ret, frame = webcam.read()
@@ -97,11 +114,15 @@ while True:
                         rectangle_color = (0, 0, 255)
                         if arduino:
                             arduino.write(b"INCORRECT\n")  # Turn on red LED
+                            arduino.flush()
+                            print("DEBUG: sent INCORRECT to Arduino")
                     else:
                         print("Prediction: Correct")
                         rectangle_color = (0, 255, 0)
                         if arduino:
                             arduino.write(b"CORRECT\n")  # Turn on green LED
+                            arduino.flush()
+                            print("DEBUG: sent CORRECT to Arduino")
                 else:
                     rectangle_color = (255, 255, 255)
             else:
@@ -124,6 +145,8 @@ while True:
         #         incorrect_image_count += 1
         # #if press z, saves frame into incorrect arm flexion
         if key == ord("q"):
+            arduino.write(b"OFF\n")  # Turn on green LED
+            arduino.flush()
             break
     
 webcam.release()

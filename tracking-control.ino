@@ -3,8 +3,8 @@
 // Servo servo1;
 // Servo servo2;
 
-int greenLED = 8;
-int redLED = 11;
+int greenLED = 5;
+int redLED = 3;
 
 String inputString = "";   // buffer for input
 boolean stringComplete = false;
