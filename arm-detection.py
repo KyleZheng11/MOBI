@@ -1,3 +1,5 @@
+# to run type   "py -3.12 .\arm-detection.py"
+
 import cv2
 import mediapipe as mp
 import pickle
@@ -6,6 +8,8 @@ from skimage.transform import resize
 from PIL import Image
 import glob
 import os
+import serial
+import time
 
 webcam = cv2.VideoCapture(0) 
 
@@ -24,6 +28,14 @@ existing_incorrect = len(glob.glob(os.path.join(incorrect_folder, "*.jpg")))
 incorrect_image_count = existing_incorrect
 
 model = pickle.load(open('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-model.p', 'rb'))
+
+try:
+    arduino = serial.Serial('COM3', 9600, timeout=1)  # Windows
+    time.sleep(2)  # Wait for Arduino to initialize
+    print("Arduino connected")
+except:
+    arduino = None
+    print("Arduino not connected")
 
 while True:
     ret, frame = webcam.read()
@@ -83,9 +95,13 @@ while True:
                     if prediction[0] == 0:
                         print("Prediction: Incorrect")
                         rectangle_color = (0, 0, 255)
+                        if arduino:
+                            arduino.write(b"INCORRECT\n")  # Turn on red LED
                     else:
                         print("Prediction: Correct")
                         rectangle_color = (0, 255, 0)
+                        if arduino:
+                            arduino.write(b"CORRECT\n")  # Turn on green LED
                 else:
                     rectangle_color = (255, 255, 255)
             else:

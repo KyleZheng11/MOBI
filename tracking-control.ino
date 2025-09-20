@@ -1,22 +1,32 @@
 #include <Servo.h>
 
-Servo servo1;
-Servo servo2;
+// Servo servo1;
+// Servo servo2;
 
+int greenLED = 8;
+int redLED = 11;
 
 String inputString = "";   // buffer for input
 boolean stringComplete = false;
 
 void setup() {
   Serial.begin(9600);
-  delay(1000);
-  servo1.attach(8);   // Servo 1 on pin 8
-  servo2.attach(11);  // Servo 2 on pin 11
+  pinMode(greenLED, OUTPUT)
+  pinMode(redLED, OUTPUT)
+
+  digitalWrite(greenLED, LOW);
+  digitalWrite(redLED, LOW);
+  
+  Serial.println("LED control ready");
+
+  // delay(1000);
+  // servo1.attach(8);   // Servo 1 on pin 8
+  // servo2.attach(11);  // Servo 2 on pin 11
  
-  Serial.println("Enter positions in format: S1:90 or S2:45");
+  // Serial.println("Enter positions in format: S1:90 or S2:45");
 
 
-  Serial.println("Orig. Set!!!");
+  // Serial.println("Orig. Set!!!");
 }
 
 void loop() {
@@ -32,25 +42,41 @@ void loop() {
 void processInput(String cmd) {
   cmd.trim();  // remove spaces/newlines
 
-  if (cmd.startsWith("S1:")) {
-    int pos = cmd.substring(3).toInt();
-    servo1.write(90);
-    pos = constrain(pos, 0, 180); // keep within servo limits
-    servo1.write(pos);
-    Serial.print("Servo 1 moved to: ");
-    Serial.println(pos);
-
-  } else if (cmd.startsWith("S2:")) {
-    int pos = cmd.substring(3).toInt();
-    servo2.write(180);
-    pos = constrain(pos, 0, 360);
-    servo2.write(pos);
-    Serial.print("Servo 2 moved to: ");
-    Serial.println(pos);
-
-  } else {
-    Serial.println("Invalid command. Use S1:angle or S2:angle");
+  if (cmd == "CORRECT") {
+    digitalWrite(greenLED, HIGH);
+    digitalWrite(redLED, LOW);
+    Serial.println("Green LED ON - Correct form");
   }
+  else if (cmd == "INCORRECT") {
+    digitalWrite(greenLED, LOW);
+    digitalWrite(redLED, HIGH);
+    Serial.println("Red LED ON - Incorrect form");
+  }
+  else if (cmd == "OFF") {
+    digitalWrite(greenLED, LOW);
+    digitalWrite(redLED, LOW);
+    Serial.println("All LEDs OFF");
+  }
+
+  // if (cmd.startsWith("S1:")) {
+  //   int pos = cmd.substring(3).toInt();
+  //   servo1.write(90);
+  //   pos = constrain(pos, 0, 180); // keep within servo limits
+  //   servo1.write(pos);
+  //   Serial.print("Servo 1 moved to: ");
+  //   Serial.println(pos);
+
+  // } else if (cmd.startsWith("S2:")) {
+  //   int pos = cmd.substring(3).toInt();
+  //   servo2.write(180);
+  //   pos = constrain(pos, 0, 360);
+  //   servo2.write(pos);
+  //   Serial.print("Servo 2 moved to: ");
+  //   Serial.println(pos);
+
+  // } else {
+  //   Serial.println("Invalid command. Use S1:angle or S2:angle");
+  // }
 }
 
 // Serial event handler
