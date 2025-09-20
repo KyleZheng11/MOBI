@@ -68,22 +68,28 @@ while True:
             max_x = min(width, max_x)
             max_y = min(height, max_y)
 
-            cropped_image = frame[min_y:max_y, min_x:max_x]  
-            
-            # Draw rectangle around the arm. uses model to switch rectangel to gree/blue whether its correct/incorrect
-            rgb_cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
-            rgb_cropped_image = resize(rgb_cropped_image, (64, 64))
-            rgb_cropped_image = rgb_cropped_image.flatten()
+            if min_x < max_x and min_y < max_y:
+                cropped_image = frame[min_y:max_y, min_x:max_x]  
+                
+                if cropped_image.size > 0:
+                    # Draw rectangle around the arm. uses model to switch rectangel to gree/blue whether its correct/incorrect
+                    rgb_cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
+                    rgb_cropped_image = resize(rgb_cropped_image, (64, 64))
+                    rgb_cropped_image = rgb_cropped_image.flatten()
           
-            prediction_input = rgb_cropped_image.reshape(1, -1)
-            prediction = model.predict(prediction_input) #prediction[0] = 0 means incorrect     prediction[0] = 1 means correct
+                    prediction_input = rgb_cropped_image.reshape(1, -1)
+                    prediction = model.predict(prediction_input) #prediction[0] = 0 means incorrect     prediction[0] = 1 means correct
 
-            if prediction[0] == 0:
-                print("Prediction: Incorrect")
-                rectangle_color = (0, 0, 255)
+                    if prediction[0] == 0:
+                        print("Prediction: Incorrect")
+                        rectangle_color = (0, 0, 255)
+                    else:
+                        print("Prediction: Correct")
+                        rectangle_color = (0, 255, 0)
+                else:
+                    rectangle_color = (255, 255, 255)
             else:
-                print("Prediction: Correct")
-                rectangle_color = (0, 255, 0)
+                rectangle_color = (255, 255, 255)
 
             cv2.rectangle(frame, (min_x, min_y), (max_x, max_y), rectangle_color, 2)       
 
@@ -91,16 +97,16 @@ while True:
         cv2.imshow("frame", frame) #im = image image show
         key = cv2.waitKey(1) # waits at most 1 millisecond for user to press a key on keyboard
 
-        #if press c, saves frame into correct arm 
-        if key == ord("c"):
-            if cropped_image.size > 0:
-                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
-                correct_image_count += 1
-        if key ==ord("z"):
-            if cropped_image.size > 0:
-                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
-                incorrect_image_count += 1
-        #if press i, saves frame into incorrect arm flexion
+        # #if press c, saves frame into correct arm 
+        # if key == ord("c"):
+        #     if cropped_image.size > 0:
+        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
+        #         correct_image_count += 1
+        # if key ==ord("z"):
+        #     if cropped_image.size > 0:
+        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
+        #         incorrect_image_count += 1
+        # #if press z, saves frame into incorrect arm flexion
         if key == ord("q"):
             break
     
