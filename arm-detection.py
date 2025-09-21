@@ -13,11 +13,29 @@ import time
 import serial
 import serial.tools.list_ports
 
+# def coordinate_to_servo_angle(coordinate, max_coordinate, servo_min=0, servo_max=180):
+#     angle = (coordinate / max_coordinate) * (servo_max-servo_min) + servo_min
+#     return int(constrain(angle, servo_min, servo_max))
+
+# def constrain(value, min_val, max_val):
+#     return max(min_val, min(max_val, value))
+
+def send_coordinates_to_arduino(x, y):
+    # Convert the coordinates to a string and send it to Arduino
+    coordinates = f"{x},{y}\r"
+    arduino.write(coordinates.encode())
+    print(f"X{x}Y{y}\n")
+
 webcam = cv2.VideoCapture(0) 
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
+
+# servo1_angle_list = []
+# servo2_angle_list = []
+# previous_servo1 = 0
+# previous_servo2 = 0
 
 correct_image_count = 0
 # correct_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'
@@ -50,9 +68,6 @@ except serial.SerialException as e:
 except Exception as e:
     arduino = None
     print(f"Other connection error: {e}")
-# except:
-#     arduino = None
-#     print("Arduino not connected")
 
 while True:
     ret, frame = webcam.read()
@@ -75,6 +90,13 @@ while True:
             elbow_y = int(elbow.y * height)
             wrist_x = int(wrist.x * width)
             wrist_y = int(wrist.y * height)
+
+            # #coordinates for camera movement
+            # camera_x = (shoulder_x + elbow_x + wrist_x) / 3
+            # camera_y = (shoulder_y + elbow_y + wrist_y) / 3
+
+            # servo2_angle = coordinate_to_servo_angle(camera_x, width) #Horizontal
+            # servo1_angle = coordinate_to_servo_angle(camera_y, height) #Vertical
             
             #circles at wrist, elbow, and shoulder marks
             cv2.circle(frame, (shoulder_x, shoulder_y), 5, (180, 180, 0), -2)
@@ -115,18 +137,26 @@ while True:
                         if arduino:
                             arduino.write(b"INCORRECT\n")  # Turn on red LED
                             arduino.flush()
-                            print("DEBUG: sent INCORRECT to Arduino")
+                            # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
+                            # arduino.write(track_command.encode())  # Camera tracking
+                            # arduino.flush()
                     else:
                         print("Prediction: Correct")
                         rectangle_color = (0, 255, 0)
                         if arduino:
                             arduino.write(b"CORRECT\n")  # Turn on green LED
                             arduino.flush()
-                            print("DEBUG: sent CORRECT to Arduino")
+                            # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
+                            # arduino.write(track_command.encode())  # Camera tracking
+                            # arduino.flush()
                 else:
                     rectangle_color = (255, 255, 255)
             else:
                 rectangle_color = (255, 255, 255)
+
+            #sending coordinates of average of rectangle coordinates to arduino
+            if arduino:
+                send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
 
             cv2.rectangle(frame, (min_x, min_y), (max_x, max_y), rectangle_color, 2)       
 
@@ -134,16 +164,16 @@ while True:
         cv2.imshow("frame", frame) #im = image image show
         key = cv2.waitKey(1) # waits at most 1 millisecond for user to press a key on keyboard
 
-        # #if press c, saves frame into correct arm 
-        # if key == ord("c"):
-        #     if cropped_image.size > 0:
-        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
-        #         correct_image_count += 1
-        # if key ==ord("z"):
-        #     if cropped_image.size > 0:
-        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
-        #         incorrect_image_count += 1
-        # #if press z, saves frame into incorrect arm flexion
+        #if press c, saves frame into correct arm 
+        if key == ord("c"):
+            if cropped_image.size > 0:
+                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
+                correct_image_count += 1
+        if key ==ord("z"):
+            if cropped_image.size > 0:
+                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
+                incorrect_image_count += 1
+        #if press z, saves frame into incorrect arm flexion
         if key == ord("q"):
             arduino.write(b"OFF\n")  # Turn on green LED
             arduino.flush()

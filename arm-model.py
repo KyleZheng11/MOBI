@@ -1,3 +1,5 @@
+# py -3.12 .\arm-model.py
+
 import os
 import pickle
 
