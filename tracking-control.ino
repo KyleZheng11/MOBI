@@ -32,7 +32,7 @@ void loop() {
     if (inputStringServo.indexOf(',') > 0) {
       int x_axis = inputStringServo.substring(0, inputStringServo.indexOf(',')).toInt();
 
-      int x = map(x_axis, 0, 2560, 180, 0); // 1920
+      int x = map(x_axis, 0, 2560, 360, 0); // 1920
 
       horizontal.write(x);
     }
