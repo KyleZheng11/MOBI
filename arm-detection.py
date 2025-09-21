@@ -148,11 +148,11 @@ while True:
 
             #sending coordinaftes of average of rectangle coordinates to arduino
             if arduino:
+                # sends degrees to arduino
+                elbow_angle_msg = f"ANGLE:{int(elbow_angle)}\r" 
+                arduino.write(elbow_angle_msg.encode())
                 tracking_counter += 1
                 if tracking_counter >= tracking_interval:
-                        # sends degrees to arduino
-                    elbow_angle_msg = f"ANGLE:{int(elbow_angle)}\r" 
-                    arduino.write(elbow_angle_msg.encode())
                         # send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
                     send_coordinates_to_arduino((shoulder_x + elbow_x + wrist_x) / 3, (shoulder_y + elbow_y + wrist_y) / 3)
                     tracking_counter = 0
