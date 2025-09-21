@@ -1,5 +1,5 @@
 Team Name: Chicken Bros
-Team Members: Elton Dong (eld142@pitt.edu), Kyle Zheng (kyz10@pitt.edu), Sanderson Lin (sjl133@pitt.edu)
+Team Members: Elton Dong (eld142@pitt.edu) (eltondong646@gmail.com), Kyle Zheng (kyz10@pitt.edu) (k1105yle@gmail.com), Sanderson Lin (sjl133@pitt.edu) (sandersonjaelin@gmail.com)
 
 Project: MOBI 
 
