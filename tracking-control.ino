@@ -34,23 +34,30 @@ void loop() {
     stringComplete = false;
   }
 
-  while(Serial.available()){
+  if(Serial.available()){
     inputStringServo = Serial.readStringUntil('\r');
+    inputStringServo.trim();
     Serial.println(inputStringServo);
-    int x_axis = inputStringServo.substring(0, inputStringServo.indexOf(',')).toInt();
-    int y_axis = inputStringServo.substring(inputStringServo.indexOf(',') + 1).toInt();
 
-    int y = map(y_axis, 0, 1600, 180, 0); // 1080
-    int x = map(x_axis, 0, 2560, 180, 0); // 1920
+    if (inputStringServo.indexOf(',') > 0) {
+      int x_axis = inputStringServo.substring(0, inputStringServo.indexOf(',')).toInt();
+      int y_axis = inputStringServo.substring(inputStringServo.indexOf(',') + 1).toInt();
 
-    horizontal.write(x);
-    vertical.write(y);
-    
-    // Print the parsed values
-    Serial.print("First Integer: ");
-    Serial.println(x);
-    Serial.print("Second Integer: ");
-    Serial.println(y);
+      int y = map(y_axis, 0, 1600, 180, 0); // 1080
+      int x = map(x_axis, 0, 2560, 180, 0); // 1920
+
+      horizontal.write(x);
+      vertical.write(y);
+      
+      // Print the parsed values
+      Serial.print("First Integer: ");
+      Serial.println(x);
+      Serial.print("Second Integer: ");
+      Serial.println(y);
+    }
+    else {
+      processInput(inputStringServo);
+    }
   }
 
 }

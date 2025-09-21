@@ -135,7 +135,7 @@ while True:
                         print("Prediction: Incorrect")
                         rectangle_color = (0, 0, 255)
                         if arduino:
-                            arduino.write(b"INCORRECT\n")  # Turn on red LED
+                            arduino.write(b"INCORRECT\r")  # Turn on red LED
                             arduino.flush()
                             # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
                             # arduino.write(track_command.encode())  # Camera tracking
@@ -144,7 +144,7 @@ while True:
                         print("Prediction: Correct")
                         rectangle_color = (0, 255, 0)
                         if arduino:
-                            arduino.write(b"CORRECT\n")  # Turn on green LED
+                            arduino.write(b"CORRECT\r")  # Turn on green LED
                             arduino.flush()
                             # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
                             # arduino.write(track_command.encode())  # Camera tracking
@@ -164,18 +164,18 @@ while True:
         cv2.imshow("frame", frame) #im = image image show
         key = cv2.waitKey(1) # waits at most 1 millisecond for user to press a key on keyboard
 
-        #if press c, saves frame into correct arm 
-        if key == ord("c"):
-            if cropped_image.size > 0:
-                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
-                correct_image_count += 1
-        if key ==ord("z"):
-            if cropped_image.size > 0:
-                cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
-                incorrect_image_count += 1
-        #if press z, saves frame into incorrect arm flexion
+        # #if press c, saves frame into correct arm 
+        # if key == ord("c"):
+        #     if cropped_image.size > 0:
+        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
+        #         correct_image_count += 1
+        # if key ==ord("z"):
+        #     if cropped_image.size > 0:
+        #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/incorrect-arm-flexion-photos/'f'incorrect_{incorrect_image_count:03d}.jpg', cropped_image)
+        #         incorrect_image_count += 1
+        # #if press z, saves frame into incorrect arm flexion
         if key == ord("q"):
-            arduino.write(b"OFF\n")  # Turn on green LED
+            arduino.write(b"OFF\r")  # Turn on green LED
             arduino.flush()
             break
     
