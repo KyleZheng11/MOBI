@@ -32,6 +32,9 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
+last_tracking_time = 0
+tracking_delay = 1.0  # 1 second delay
+
 # servo1_angle_list = []
 # servo2_angle_list = []
 # previous_servo1 = 0
@@ -156,7 +159,10 @@ while True:
 
             #sending coordinates of average of rectangle coordinates to arduino
             if arduino:
-                send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
+                current_time = time.time()
+                if current_time - last_tracking_time >= tracking_delay:
+                    send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
+                    last_tracking_time = current_time
 
             cv2.rectangle(frame, (min_x, min_y), (max_x, max_y), rectangle_color, 2)       
 
