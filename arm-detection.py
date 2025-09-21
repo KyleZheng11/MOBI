@@ -20,7 +20,7 @@ def send_coordinates_to_arduino(x, y):
     print(f"X{x}Y{y}\n")
 
 tracking_counter = 0
-tracking_interval = 15  # Every 15 frames (about 2 times per second)
+tracking_interval = 10  # Every 15 frames (about 2 times per second)
 
 webcam = cv2.VideoCapture(0) 
 
