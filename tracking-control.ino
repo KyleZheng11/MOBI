@@ -12,13 +12,13 @@ boolean stringComplete = false;
 
 void setup() {
   // attaches horizontal and verticle servos to correct pins on breadboard
-  horizontal.attach(10)
-  vertical.attach(8)
+  horizontal.attach(10);
+  vertical.attach(8);
 
   Serial.begin(9600);
 
-  pinMode(greenLED, OUTPUT)
-  pinMode(redLED, OUTPUT)
+  pinMode(greenLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
 
   digitalWrite(greenLED, LOW);
   digitalWrite(redLED, LOW);
