@@ -1,3 +1,9 @@
-Creators: Kyle Zheng, Sanderson Lin, Elton Dong
+Team Name: Chicken Bros
+Team Members: Elton Dong (eld142@pitt.edu), Kyle Zheng (kyz10@pitt.edu), Sanderson Lin (sjl133@pitt.edu)
 
-MOBI is a physical therapy assistant utilizing computer vision (python, openCV) alongside arduinos
+Project: MOBI 
+
+About: Semi-automatic robot called MOBI that reinvents and enhance
+sports medicine through the use of computer vision, python, openCV, mediaPipe, arduino hardware, and arduino IDE. 
+Controls two independent servos, one being for auto camera calibration tracking and the other being joint-angle mimicry. 
+Provides real time physical feedback to both user and expert on immediate flexion of the arm.
