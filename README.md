@@ -3,7 +3,4 @@ Team Members: Elton Dong (eld142@pitt.edu) (eltondong646@gmail.com), Kyle Zheng 
 
 Project: MOBI 
 
-About: Semi-automatic robot called MOBI that reinvents and enhance
-sports medicine through the use of computer vision, python, openCV, mediaPipe, arduino hardware, and arduino IDE. 
-Controls two independent servos, one being for auto camera calibration tracking and the other being joint-angle mimicry. 
-Provides real time physical feedback to both user and expert on immediate flexion of the arm.
+About: Semi-automatic robot called MOBI that reinvents and enhances sports medicine through the use of computer vision, python, openCV, mediaPipe, arduino hardware, and arduino IDE. Controls two independent servos, one being for auto camera calibration tracking and the other being joint-angle mimicry. Provides real time physical feedback to both user and expert on immediate flexion of the arm.

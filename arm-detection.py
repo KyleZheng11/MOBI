@@ -5,7 +5,6 @@ import mediapipe as mp
 import pickle
 import numpy as np
 from skimage.transform import resize
-from PIL import Image
 import glob
 import os
 import serial
@@ -19,6 +18,9 @@ def send_coordinates_to_arduino(x, y):
     coordinates = f"{x},{y}\r"
     arduino.write(coordinates.encode())
     print(f"X{x}Y{y}\n")
+
+tracking_counter = 0
+tracking_interval = 15  # Every 15 frames (about 2 times per second)
 
 webcam = cv2.VideoCapture(0) 
 
@@ -65,8 +67,8 @@ while True:
     ret, frame = webcam.read()
     
     if ret:
-        RGB_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        result = pose.process(RGB_frame)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        result = pose.process(rgb_frame)
         if result.pose_landmarks:
             height, width, _ = frame.shape
 
@@ -146,14 +148,14 @@ while True:
 
             #sending coordinaftes of average of rectangle coordinates to arduino
             if arduino:
-                # sends degrees to arduino
-                elbow_angle_msg = f"ANGLE:{int(elbow_angle)}\r" 
-                arduino.write(elbow_angle_msg.encode())
-
-                current_time = time.time()
-                if current_time - last_tracking_time >= tracking_delay:
-                    send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
-                    last_tracking_time = current_time
+                tracking_counter += 1
+                if tracking_counter >= tracking_interval:
+                        # sends degrees to arduino
+                    elbow_angle_msg = f"ANGLE:{int(elbow_angle)}\r" 
+                    arduino.write(elbow_angle_msg.encode())
+                        # send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
+                    send_coordinates_to_arduino((shoulder_x + elbow_x + wrist_x) / 3, (shoulder_y + elbow_y + wrist_y) / 3)
+                    tracking_counter = 0
 
             cv2.rectangle(frame, (min_x, min_y), (max_x, max_y), rectangle_color, 2)       
 
@@ -161,7 +163,7 @@ while True:
         cv2.imshow("frame", frame) #im = image image show
         key = cv2.waitKey(1) # waits at most 1 millisecond for user to press a key on keyboard
 
-        # #if press c, saves frame into correct arm 
+        #if press c, saves frame into correct arm 
         # if key == ord("c"):
         #     if cropped_image.size > 0:
         #         cv2.imwrite('/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'f'correct_{correct_image_count:03d}.jpg', cropped_image)
@@ -172,7 +174,7 @@ while True:
         #         incorrect_image_count += 1
         # #if press z, saves frame into incorrect arm flexion
         if key == ord("q"):
-            arduino.write(b"OFF\r")  # Turn on green LED
+            arduino.write(b"OFF\r")  
             arduino.flush()
             break
     

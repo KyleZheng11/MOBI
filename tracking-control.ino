@@ -4,13 +4,13 @@ String inputStringServo;
 Servo horizontal;
 Servo armServo;
 
-int greenLED = 5;
-int redLED = 3;
+int greenLED = 4;
+int redLED = 5;
 
 void setup() {
   // pins for each servo
-  horizontal.attach(8);
-  armServo.attach(10);
+  horizontal.attach(2);
+  armServo.attach(3);
 
   Serial.begin(9600);
 
