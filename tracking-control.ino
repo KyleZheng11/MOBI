@@ -7,9 +7,6 @@ Servo vertical;
 int greenLED = 5;
 int redLED = 3;
 
-String inputString = "";   // buffer for input
-boolean stringComplete = false;
-
 void setup() {
   // attaches horizontal and verticle servos to correct pins on breadboard
   horizontal.attach(10);
@@ -27,13 +24,6 @@ void setup() {
 }
 
 void loop() {
-  // Check if a command is ready
-  if (stringComplete) {
-    processInput(inputString);
-    inputString = "";
-    stringComplete = false;
-  }
-
   if(Serial.available()){
     inputStringServo = Serial.readStringUntil('\r');
     inputStringServo.trim();
@@ -80,17 +70,5 @@ void processInput(String cmd) {
     digitalWrite(greenLED, LOW);
     digitalWrite(redLED, LOW);
     Serial.println("All LEDs OFF");
-  }
-}
-
-// Serial event handler
-void serialEvent() {
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    if (inChar == '\n') {
-      stringComplete = true;
-    } else {
-      inputString += inChar;
-    }
   }
 }
