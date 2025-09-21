@@ -12,13 +12,7 @@ import serial
 import time
 import serial
 import serial.tools.list_ports
-
-# def coordinate_to_servo_angle(coordinate, max_coordinate, servo_min=0, servo_max=180):
-#     angle = (coordinate / max_coordinate) * (servo_max-servo_min) + servo_min
-#     return int(constrain(angle, servo_min, servo_max))
-
-# def constrain(value, min_val, max_val):
-#     return max(min_val, min(max_val, value))
+import math
 
 def send_coordinates_to_arduino(x, y):
     # Convert the coordinates to a string and send it to Arduino
@@ -34,11 +28,6 @@ pose = mp_pose.Pose()
 
 last_tracking_time = 0
 tracking_delay = 1.0  # 1 second delay
-
-# servo1_angle_list = []
-# servo2_angle_list = []
-# previous_servo1 = 0
-# previous_servo2 = 0
 
 correct_image_count = 0
 # correct_folder = '/Users/k1105/MOBI/MOBI_PhysicalTherapyAssistant/arm-flexion-library/correct-arm-flexion-photos/'
@@ -94,15 +83,19 @@ while True:
             wrist_x = int(wrist.x * width)
             wrist_y = int(wrist.y * height)
 
-            # #coordinates for camera movement
-            # camera_x = (shoulder_x + elbow_x + wrist_x) / 3
-            # camera_y = (shoulder_y + elbow_y + wrist_y) / 3
-
-            # servo2_angle = coordinate_to_servo_angle(camera_x, width) #Horizontal
-            # servo1_angle = coordinate_to_servo_angle(camera_y, height) #Vertical
+            # Vector from elbow to wrist
+            v1 = np.array([wrist_x - elbow_x, wrist_y - elbow_y])
+            # Vector from elbow to shoulder
+            v2 = np.array([shoulder_x - elbow_x, shoulder_y - elbow_y])
+            cos_theta = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+            elbow_angle = math.degrees(np.arccos(cos_theta))
             
             #circles at wrist, elbow, and shoulder marks
             cv2.circle(frame, (shoulder_x, shoulder_y), 5, (180, 180, 0), -2)
+
+            text_position = (elbow_x, elbow_y - 10)  # 10 pixels above the elbow
+            cv2.putText(frame, f"{int(elbow_angle)}deg", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)          
+
             cv2.circle(frame, (elbow_x, elbow_y), 5, (180, 180, 0), -2)
             cv2.circle(frame, (wrist_x, wrist_y), 5, (180, 180, 0), -2)
 
@@ -140,25 +133,23 @@ while True:
                         if arduino:
                             arduino.write(b"INCORRECT\r")  # Turn on red LED
                             arduino.flush()
-                            # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
-                            # arduino.write(track_command.encode())  # Camera tracking
-                            # arduino.flush()
                     else:
                         print("Prediction: Correct")
                         rectangle_color = (0, 255, 0)
                         if arduino:
                             arduino.write(b"CORRECT\r")  # Turn on green LED
                             arduino.flush()
-                            # track_command = f"TRACK:{servo1_angle},{servo2_angle}\n"
-                            # arduino.write(track_command.encode())  # Camera tracking
-                            # arduino.flush()
                 else:
                     rectangle_color = (255, 255, 255)
             else:
                 rectangle_color = (255, 255, 255)
 
-            #sending coordinates of average of rectangle coordinates to arduino
+            #sending coordinaftes of average of rectangle coordinates to arduino
             if arduino:
+                # sends degrees to arduino
+                elbow_angle_msg = f"ANGLE:{int(elbow_angle)}\r" 
+                arduino.write(elbow_angle_msg.encode())
+
                 current_time = time.time()
                 if current_time - last_tracking_time >= tracking_delay:
                     send_coordinates_to_arduino( ((min_x + max_x) / 2), ((min_y+max_y) / 2) )
